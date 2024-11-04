@@ -19,7 +19,9 @@ public class MySQLHelloWorld {
 		System.out.println("Hola " + linia + " T'has Connectat a MySQL.");
 		Statement st = conn.createStatement();
 		String sSql = "SELECT * FROM DOCTOR";
-		ResultSet res = st.executeQuery(sSql);		
-	}
+		ResultSet res = st.executeQuery(sSql);	
+		System.out.println("Hola");
+		
+		}
 
 }
