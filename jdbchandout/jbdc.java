@@ -111,6 +111,17 @@ public class jbdc {
 		}
 	}
 	
+	//DELIMITER $$
+	//CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDoctorsByEspecialitat`(IN especialitat VARCHAR(255))
+	//BEGIN
+	//    SELECT
+	//DOCTOR_NOM
+	//    FROM
+	//        doctor
+	//    WHERE
+	//        doctor_ESPECIALITAT = ESPECIALITAT ;
+	//END$$
+	//DELIMITER ;
 	public static void doExercici5 (Connection con, String especialitat)
 	{
 		try {
