@@ -1,6 +1,7 @@
 package jdbchandout;
 
 import java.sql.*;
+import java.util.Random;
 
 import jdk.internal.org.objectweb.asm.Type;
 import model.Doctor;
@@ -10,20 +11,26 @@ public class jbdc {
 	static String connectionUrl = "jdbc:mysql://localhost:3306/hospital?serverTimezone=UTC";
 	public static void main (String[] args) throws SQLException
 	{
-		Connection con = DriverManager.getConnection(connectionUrl, "root", "");
+		Connection con = DriverManager.getConnection(connectionUrl, "admin", "12345");
 		
 		//revertirExercici1(con);
 		
 		//Try Catch a cada exercici
 		//1.Statements Eliminar id = 9999 update 10995
 		doExercici1(con,"9999", "10995");
+		System.out.println("---------------------------------------");
 		//2.Prepared statements
-		doExercici2(con,74835);
+		doExercici2(con,30000);
+		System.out.println("---------------------------------------");
 		//3.ExecuteBatch i AddBatch
 		doExercici3(con);
+		System.out.println("---------------------------------------");
 		//4.Crear procediment emmagatzemat UN SOL VALOR
 		doExercici4(con, "PEPITO U.");
+		System.out.println("---------------------------------------");
 		//5.Crear procediment emmagatzemat UN CURSOR
+		doExercici5(con, "Cardiologia");
+		System.out.println("---------------------------------------");
 		//6.Funcio transaccional 
 	}
 	
@@ -42,7 +49,7 @@ public class jbdc {
 			
 		catch (SQLException e) 
 		{
-				e.printStackTrace();
+			System.out.println("S'ha llençat una excepció");
 		}
 		
 	}
@@ -61,7 +68,7 @@ public class jbdc {
 		}
 		catch(SQLException e)
 		{
-			e.printStackTrace();
+			System.out.println("S'ha llençat una excepció");
 		}
 	}
 	
@@ -69,18 +76,18 @@ public class jbdc {
 	{
 		try {
 			String sSql = "INSERT INTO `malalt` (`malalt_num`, `malalt_nom`, `malalt_adreca`, `malalt_dnaixa`, `malalt_sexe`, `malalt_nss`) VALUES (?, 'Laguia M.', 'Goya 20', '1956-05-16', 'M', 280862482)";
+			Random r = new Random();
 			PreparedStatement pS = con.prepareStatement(sSql);
-			pS.setInt(1, 999);
+			pS.setInt(1, r.nextInt(9999));
 			pS.addBatch();
-			pS.setInt(1, 9999);
+			pS.setInt(1, r.nextInt(9999));
 			pS.addBatch();
-			pS.setInt(1, 8888);
+			pS.setInt(1, r.nextInt(9999));
 			pS.addBatch();
 			int[]count = pS.executeBatch();
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("S'ha llençat una excepció");
 		}
 		
 	}
@@ -100,8 +107,33 @@ public class jbdc {
 		}
 		catch (SQLException e)
 		{
-			e.printStackTrace();
+			System.out.println("S'ha llençat una excepció");
 		}
+	}
+	
+	public static void doExercici5 (Connection con, String especialitat)
+	{
+		try {
+			String storedProcedure = "{call GetDoctorsByEspecialitat(?)}";
+			CallableStatement cS;
+			cS = con.prepareCall(storedProcedure);
+			cS.setString(1, especialitat);
+			boolean hasResults = cS.execute();
+			if (hasResults)
+			{
+				ResultSet rS = cS.getResultSet();
+				while(rS.next())
+				{
+					System.out.println("NOM: " + rS.getString(1));
+				}
+			}			
+		} 
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("S'ha llençat una excepció");
+		}
+		
+
 	}
 	public static void revertirExercici1(Connection con)
 	{
@@ -113,7 +145,7 @@ public class jbdc {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("S'ha llençat una excepció");
 		}
 
 	}
