@@ -206,6 +206,10 @@ public class jbdc {
 			cS.setInt(1, d.getCodi());
 			cS.setInt(2, d.getCodiHospital());
 			cS.setString(3, d.getNom());
+			boolean created = cS.execute();
+			//CODI_DOCTOR, CODI_HOSPITAL
+			sSql = "{call UpdateDoctorHospital(?,?,?)}";
+			cS = con.prepareCall(sSql);
 			
 
 		}
