@@ -1,6 +1,8 @@
 package jdbchandout;
 
 import java.sql.*;
+
+import jdk.internal.org.objectweb.asm.Type;
 import model.Doctor;
 
 
@@ -8,15 +10,19 @@ public class jbdc {
 	static String connectionUrl = "jdbc:mysql://localhost:3306/hospital?serverTimezone=UTC";
 	public static void main (String[] args) throws SQLException
 	{
-		Connection con = DriverManager.getConnection(connectionUrl, "admin", "12345");
+		Connection con = DriverManager.getConnection(connectionUrl, "root", "");
+		
 		//revertirExercici1(con);
+		
 		//Try Catch a cada exercici
 		//1.Statements Eliminar id = 9999 update 10995
 		doExercici1(con,"9999", "10995");
 		//2.Prepared statements
 		doExercici2(con,74835);
 		//3.ExecuteBatch i AddBatch
-		//4.Crear procediment emmagatzemat UN SOL VALOR 
+		doExercici3(con);
+		//4.Crear procediment emmagatzemat UN SOL VALOR
+		doExercici4(con, "PEPITO U.");
 		//5.Crear procediment emmagatzemat UN CURSOR
 		//6.Funcio transaccional 
 	}
@@ -50,10 +56,49 @@ public class jbdc {
 			ResultSet resultSet = pS.executeQuery();
 			while(resultSet.next())
 			{
-				System.out.println("NOM: " + resultSet.getString(0));
+				System.out.println("NOM: " + resultSet.getString(1));
 			}		
 		}
 		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public static void doExercici3(Connection con)
+	{
+		try {
+			String sSql = "INSERT INTO `malalt` (`malalt_num`, `malalt_nom`, `malalt_adreca`, `malalt_dnaixa`, `malalt_sexe`, `malalt_nss`) VALUES (?, 'Laguia M.', 'Goya 20', '1956-05-16', 'M', 280862482)";
+			PreparedStatement pS = con.prepareStatement(sSql);
+			pS.setInt(1, 999);
+			pS.addBatch();
+			pS.setInt(1, 9999);
+			pS.addBatch();
+			pS.setInt(1, 8888);
+			pS.addBatch();
+			int[]count = pS.executeBatch();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void doExercici4(Connection con, String nameIn)
+	{
+		try {
+			
+			String storedProcedure = "{call GetMalalt(?,?)}";
+			CallableStatement cS = con.prepareCall(storedProcedure);
+			cS.setString(1, nameIn);
+			cS.registerOutParameter(2, Types.INTEGER);
+			cS.execute();
+			int malaltId = cS.getInt(2);
+			System.out.println("Stored Procedure GET MALALT " + nameIn + "-> ID Malalt: " + malaltId);			
+			
+		}
+		catch (SQLException e)
 		{
 			e.printStackTrace();
 		}
