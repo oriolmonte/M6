@@ -96,8 +96,8 @@ public class jbdc {
 	{
 		try {
 			
-			String storedProcedure = "{call GetMalalt(?,?)}";
-			CallableStatement cS = con.prepareCall(storedProcedure);
+			String sSql = "{call GetMalalt(?,?)}";
+			CallableStatement cS = con.prepareCall(sSql);
 			cS.setString(1, nameIn);
 			cS.registerOutParameter(2, Types.INTEGER);
 			cS.execute();
@@ -125,9 +125,9 @@ public class jbdc {
 	public static void doExercici5 (Connection con, String especialitat)
 	{
 		try {
-			String storedProcedure = "{call GetDoctorsByEspecialitat(?)}";
+			String sSql = "{call GetDoctorsByEspecialitat(?)}";
 			CallableStatement cS;
-			cS = con.prepareCall(storedProcedure);
+			cS = con.prepareCall(sSql);
 			cS.setString(1, especialitat);
 			boolean hasResults = cS.execute();
 			if (hasResults)
@@ -145,6 +145,75 @@ public class jbdc {
 		}
 		
 
+	}
+	//HOSPITALS VALIDS 13 18 22 45
+	public static void doExercici6 (Connection con)
+	{
+		
+	}
+	
+	//DELIMITER $$
+//	CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDoctorsByEspecialitat`(IN especialitat VARCHAR(255))
+//			BEGIN
+//			    SELECT
+//			        DOCTOR_NOM
+//			    FROM
+//			        doctor
+//			    WHERE
+//			        doctor_ESPECIALITAT = ESPECIALITAT ;
+//			END$$
+//			DELIMITER ;
+//	
+//	DELIMITER $$
+//	CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateNewDoctor`(
+//	    IN codiDoctor INT,
+//	    IN codiHospital INT,
+//	    IN nomDoctor VARCHAR(255)
+//	)
+//	BEGIN
+//	    INSERT INTO `doctor`(
+//	        `doctor_codi`,
+//	        `doctor_hospital_codi`,
+//	        `doctor_nom`
+//	    )
+//	VALUES(
+//	    codiDoctor,
+//	    codiHospital,
+//	    nomDoctor
+//	) ;
+//	END$$
+//	DELIMITER ;
+	
+//	DELIMITER $$
+//	CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateDoctorHospital`(IN `codiDoctor` INT, IN `codiHospital` INT)
+//	BEGIN
+//	    UPDATE
+//	        doctor
+//	    SET
+//	        doctor_hospital_codi = codiHospital
+//	    WHERE
+//	        doctor_codi = codiDoctor;
+//	END$$
+//	DELIMITER ;
+	//HOSPITALS VALIDS 13 18 22 45
+	public static boolean CreateAndUpdate(Connection con, Doctor d, int updateHospitalCode)
+	{
+		try
+		{
+			//CODI,CODIHOSPITAL,NOM
+			String sSql = "{call CreateNewDoctor(?,?,?)}";
+			CallableStatement cS = con.prepareCall(sSql);
+			cS.setInt(1, d.getCodi());
+			cS.setInt(2, d.getCodiHospital());
+			cS.setString(3, d.getNom());
+			
+
+		}
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("S'ha llençat una excepció");
+			return false;
+		}
 	}
 	public static void revertirExercici1(Connection con)
 	{
