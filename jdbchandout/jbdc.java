@@ -31,6 +31,8 @@ public class jbdc {
 		//5.Crear procediment emmagatzemat UN CURSOR
 		doExercici5(con, "Cardiologia");
 		System.out.println("---------------------------------------");
+		//HOSPITALS VALIDS 13 18 22 45
+		doExercici6(con);
 		//6.Funcio transaccional 
 	}
 	
@@ -111,17 +113,6 @@ public class jbdc {
 		}
 	}
 	
-	//DELIMITER $$
-	//CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDoctorsByEspecialitat`(IN especialitat VARCHAR(255))
-	//BEGIN
-	//    SELECT
-	//DOCTOR_NOM
-	//    FROM
-	//        doctor
-	//    WHERE
-	//        doctor_ESPECIALITAT = ESPECIALITAT ;
-	//END$$
-	//DELIMITER ;
 	public static void doExercici5 (Connection con, String especialitat)
 	{
 		try {
@@ -149,75 +140,64 @@ public class jbdc {
 	//HOSPITALS VALIDS 13 18 22 45
 	public static void doExercici6 (Connection con)
 	{
+		System.out.println("EXERCICI 6");
+		try {
+			Doctor doc = new Doctor(123,13,"Kakarot");
+			CreateAndUpdate(con, doc, 22);
+			Doctor doc2 = new Doctor(1233,13,"Vegeta");
+			CreateAndUpdate(con, doc2, 54);
+			CreateAndUpdate(con, doc, 22);
 		
+		} catch (Exception e) {
+			
+		}
 	}
 	
-	//DELIMITER $$
-//	CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDoctorsByEspecialitat`(IN especialitat VARCHAR(255))
-//			BEGIN
-//			    SELECT
-//			        DOCTOR_NOM
-//			    FROM
-//			        doctor
-//			    WHERE
-//			        doctor_ESPECIALITAT = ESPECIALITAT ;
-//			END$$
-//			DELIMITER ;
-//	
-//	DELIMITER $$
-//	CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateNewDoctor`(
-//	    IN codiDoctor INT,
-//	    IN codiHospital INT,
-//	    IN nomDoctor VARCHAR(255)
-//	)
-//	BEGIN
-//	    INSERT INTO `doctor`(
-//	        `doctor_codi`,
-//	        `doctor_hospital_codi`,
-//	        `doctor_nom`
-//	    )
-//	VALUES(
-//	    codiDoctor,
-//	    codiHospital,
-//	    nomDoctor
-//	) ;
-//	END$$
-//	DELIMITER ;
-	
-//	DELIMITER $$
-//	CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateDoctorHospital`(IN `codiDoctor` INT, IN `codiHospital` INT)
-//	BEGIN
-//	    UPDATE
-//	        doctor
-//	    SET
-//	        doctor_hospital_codi = codiHospital
-//	    WHERE
-//	        doctor_codi = codiDoctor;
-//	END$$
-//	DELIMITER ;
 	//HOSPITALS VALIDS 13 18 22 45
-	public static boolean CreateAndUpdate(Connection con, Doctor d, int updateHospitalCode)
-	{
+	public static boolean CreateAndUpdate(Connection con, Doctor d, int updateHospitalCode) 	{
+		boolean created = false;
+		boolean updated = false;
 		try
 		{
 			//CODI,CODIHOSPITAL,NOM
+			con.setAutoCommit(false);
 			String sSql = "{call CreateNewDoctor(?,?,?)}";
 			CallableStatement cS = con.prepareCall(sSql);
 			cS.setInt(1, d.getCodi());
 			cS.setInt(2, d.getCodiHospital());
 			cS.setString(3, d.getNom());
-			boolean created = cS.execute();
+			created = cS.execute();
 			//CODI_DOCTOR, CODI_HOSPITAL
-			sSql = "{call UpdateDoctorHospital(?,?,?)}";
+			System.out.println("S'ha creat el registre " + d.getNom());
+			System.out.println("---------------------------------------");
+			sSql = "{call UpdateDoctorHospital(?,?)}";
 			cS = con.prepareCall(sSql);
-			
-
+			cS.setInt(1,d.getCodi());
+			cS.setInt(2, updateHospitalCode);
+			updated = cS.execute();			
+			System.out.println("S'ha actualitzat el registre " + d.getNom());
+			System.out.println("---------------------------------------");
+			con.commit();
+			System.out.println("Commit!");
+			System.out.println("---------------------------------------");
+			return created&&updated;
 		}
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("S'ha llençat una excepció");
+			
+			System.out.println("Rollbacked");
+			System.out.println("---------------------------------------");
+			if(created)
+				System.out.println("S'ha creat el registre " + d.getNom());
+			if(updated)
+				System.out.println("S'ha actualitzat el registre " + d.getNom());
+			try
+			{
+				con.rollback();
+			}
+			catch (SQLException e1) {						}
+			}
 			return false;
-		}
+
 	}
 	public static void revertirExercici1(Connection con)
 	{
